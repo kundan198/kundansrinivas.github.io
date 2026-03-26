@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>LQ Housekeeping — Worker</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F0F0ED;
+  --surface: #FFFFFF;
+  --surface2: #E8E8E4;
+  --ink: #111110;
+  --ink2: #555552;
+  --ink3: #9A9A95;
+  --border: rgba(0,0,0,0.09);
+  --pine: #1A3A2E;
+  --pine2: #276046;
+  --pine-bg: #E4EFE9;
+  --pine-light: #C8DFD0;
+  --danger: #C0392B;
+  --danger-bg: #FDECEA;
+  --warn: #B06020;
+  --warn-bg: #FEF0E4;
+  --sky: #1A4A76;
+  --sky-bg: #E6F0FA;
+  --gold: #857010;
+  --gold-bg: #FEF8E4;
+  --f: 'Plus Jakarta Sans', sans-serif;
+  --r: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--f);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  font-size: 15px;
+  position: relative;
+}
+
+/* SCREENS */
+.page { display: none; min-height: 100vh; flex-direction: column; }
+.page.on { display: flex; }
+
+/* ── LOGIN PAGE ────────────────────────────────────── */
+.login-bg {
+  flex: 1;
+  background: var(--pine);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-bg::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 280px; height: 280px;
+  background: var(--pine2);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.login-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: -60px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 44px;
+  position: relative;
+  z-index: 1;
+}
+
+.login-logo-icon {
+  width: 72px; height: 72px;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: var(--r-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 32px;
+}
+
+.login-brand { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+.login-title { font-size: 26px; font-weight: 800; color: #fff; }
+.login-sub { font-size: 14px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+.login-card {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 28px 24px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.login-card-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
+
+.finp {
+  width: 100%;
+  padding: 13px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--r);
+  font-family: var(--f);
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--ink);
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.finp:focus { border-color: var(--pine); background: #fff; }
+
+.fsel {
+  width: 100%;
+  padding: 13px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--r);
+  font-family: var(--f);
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--ink);
+  outline: none;
+  margin-bottom: 16px;
+  -webkit-appearance: none;
+  transition: border-color 0.15s;
+}
+.fsel:focus { border-color: var(--pine); }
+
+.btn-big {
+  width: 100%;
+  padding: 15px;
+  background: var(--pine);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  font-family: var(--f);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-appearance: none;
+}
+.btn-big:active { transform: scale(0.98); background: var(--pine2); }
+
+/* ── HEADER ────────────────────────────────────────── */
+.header {
+  background: var(--pine);
+  padding: 16px 20px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.header-worker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hav {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.25);
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.hname { font-size: 15px; font-weight: 700; color: #fff; }
+.hdate { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+.h-logout {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  font-family: var(--f);
+}
+
+/* PROGRESS STRIP */
+.prog-strip {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prog-bar-wrap { flex: 1; }
+.prog-lbl { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.prog-bar { height: 6px; background: rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden; }
+.prog-fill { height: 100%; background: #34D399; border-radius: 4px; transition: width 0.5s; }
+.prog-nums { font-size: 13px; font-weight: 800; color: #fff; white-space: nowrap; font-family: monospace; }
+
+/* FINISH TIME */
+.finish-pill {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  min-width: 70px;
+}
+.finish-pill small { display: block; font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
+
+/* BOTTOM NAV */
+.bnav {
+  position: fixed;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 20;
+}
+
+.bnav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 11px 8px 14px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink3);
+  background: none;
+  border: none;
+  font-family: var(--f);
+  transition: color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bnav-btn.on { color: var(--pine); }
+.bnav-btn svg { width: 22px; height: 22px; }
+.bnav-pip {
+  position: absolute;
+  top: 8px;
+  right: calc(50% - 22px);
+  background: var(--danger);
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+}
+
+/* BODY */
+.body { flex: 1; padding: 16px 16px 90px; overflow-y: auto; }
+
+/* ── MY ROOMS (Main Tab) ────────────────────────────── */
+.section-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink3);
+  margin-bottom: 10px;
+  margin-top: 20px;
+  padding-left: 2px;
+}
+.section-title:first-child { margin-top: 0; }
+
+/* NEXT ROOM CARD */
+.next-card {
+  background: var(--pine);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.next-card::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+
+.next-tag { font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+.next-num { font-size: 40px; font-weight: 800; color: #fff; font-family: monospace; line-height: 1; margin-bottom: 6px; }
+.next-type { font-size: 14px; color: rgba(255,255,255,0.65); font-weight: 600; margin-bottom: 16px; }
+
+.next-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.nmeta-chip {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+}
+
+.next-actions { display: flex; gap: 10px; }
+
+.nact-btn {
+  flex: 1;
+  padding: 13px;
+  border-radius: var(--r);
+  border: none;
+  font-family: var(--f);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.1s;
+}
+.nact-btn:active { transform: scale(0.97); }
+
+.nact-start { background: #fff; color: var(--pine); }
+.nact-skip { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
+
+/* ROOM LIST ITEM */
+.room-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.room-item:active { transform: scale(0.99); }
+
+.room-num-badge {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: monospace;
+  flex-shrink: 0;
+}
+
+.ri-content { flex: 1; min-width: 0; }
+.ri-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.ri-name { font-size: 15px; font-weight: 700; }
+.ri-sub { font-size: 12px; color: var(--ink3); font-weight: 500; }
+.ri-arrow { color: var(--ink3); font-size: 18px; }
+
+/* STATUS CHIPS */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.chip-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.chip-green { background: var(--pine-bg); color: var(--pine); }
+.chip-blue { background: var(--sky-bg); color: var(--sky); }
+.chip-orange { background: var(--warn-bg); color: var(--warn); }
+.chip-red { background: var(--danger-bg); color: var(--danger); }
+.chip-gray { background: var(--surface2); color: var(--ink2); }
+
+/* ROOM COLORS BY STATUS */
+.rb-complete { background: var(--pine-bg); color: var(--pine); }
+.rb-inprog { background: var(--sky-bg); color: var(--sky); }
+.rb-assigned { background: var(--warn-bg); color: var(--warn); }
+.rb-urgent { background: var(--danger-bg); color: var(--danger); }
+
+/* ── ROOM DETAIL ───────────────────────────────────── */
+.detail-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  sticky-top: 0;
+}
+
+.back-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.det-room-num { font-size: 22px; font-weight: 800; }
+.det-room-type { font-size: 13px; color: var(--ink3); font-weight: 600; }
+
+.det-status-bar {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.dsbar-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+.dsbar-step::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  right: -4px;
+  width: 8px;
+  height: 2px;
+  background: var(--border);
+}
+.dsbar-step:last-child::after { display: none; }
+
+.dsbar-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  margin: 0 auto 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.dsbar-step.done .dsbar-dot { background: var(--pine); border-color: var(--pine); color: #fff; }
+.dsbar-step.active .dsbar-dot { background: var(--surface); border-color: var(--pine); color: var(--pine); border-width: 2.5px; }
+.dsbar-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink3); }
+.dsbar-step.done .dsbar-lbl, .dsbar-step.active .dsbar-lbl { color: var(--pine); }
+
+/* NOTES ALERT */
+.note-alert {
+  background: var(--gold-bg);
+  border-left: 4px solid #D97706;
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* CHECKLIST */
+.cl-item {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cl-item:active { transform: scale(0.99); }
+.cl-item.checked { border-color: var(--pine-light); background: var(--pine-bg); }
+
+.cl-check {
+  width: 24px; height: 24px;
+  border-radius: 7px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 800;
+  transition: all 0.15s;
+}
+.cl-item.checked .cl-check { background: var(--pine); border-color: var(--pine); color: #fff; }
+.cl-item.checked .cl-label { text-decoration: line-through; color: var(--ink3); }
+.cl-label { font-size: 14px; font-weight: 600; }
+
+/* ACTION STRIP */
+.action-strip {
+  position: fixed;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 16px 24px;
+  z-index: 30;
+  display: flex;
+  gap: 10px;
+}
+
+.act-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--r);
+  border: none;
+  font-family: var(--f);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.act-btn:active { transform: scale(0.98); }
+.act-primary { background: var(--pine); color: #fff; }
+.act-primary:active { background: var(--pine2); }
+.act-secondary { background: var(--surface2); color: var(--ink2); border: 1.5px solid var(--border); }
+
+/* ── REQUESTS TAB ──────────────────────────────────── */
+.req-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.req-ic {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--pine-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.req-urgent .req-ic { background: var(--danger-bg); }
+.req-title { font-size: 15px; font-weight: 700; }
+.req-sub { font-size: 12px; color: var(--ink3); margin-top: 2px; font-weight: 500; }
+.req-done-btn {
+  padding: 9px 14px;
+  background: var(--pine);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--f);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── BREAK TIMER ───────────────────────────────────── */
+.break-section {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  text-align: center;
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.break-timer {
+  font-size: 56px;
+  font-weight: 800;
+  font-family: monospace;
+  color: var(--pine);
+  line-height: 1;
+  margin: 16px 0;
+}
+.break-sub { font-size: 13px; color: var(--ink3); font-weight: 500; }
+.break-btn {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  border-radius: var(--r);
+  border: none;
+  font-family: var(--f);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all 0.15s;
+}
+.break-btn:active { transform: scale(0.98); }
+.break-start { background: var(--gold-bg); color: var(--gold); border: 2px solid #D97706; }
+.break-end { background: var(--pine); color: #fff; }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.scard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px;
+}
+.scard-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 6px; }
+.scard-val { font-size: 24px; font-weight: 800; font-family: monospace; }
+
+/* EMPTY STATE */
+.empty {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--ink3);
+}
+.empty-icon { font-size: 44px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; font-weight: 700; color: var(--ink2); margin-bottom: 6px; }
+.empty-sub { font-size: 13px; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  top: 24px;
+  left: 50%; transform: translateX(-50%) translateY(-80px);
+  background: var(--ink);
+  color: #fff;
+  padding: 11px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 999;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  white-space: nowrap;
+  border-bottom: 3px solid var(--pine2);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ─── LOGIN ─────────────────────────────────────────── -->
+<div class="page on" id="pg-login">
+  <div class="login-bg">
+    <div class="login-logo">
+      <div class="login-logo-icon">🏨</div>
+      <div class="login-brand">La Quinta Inn & Suites</div>
+      <div class="login-title">Housekeeping</div>
+      <div class="login-sub">Worker Portal</div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card-title">Good morning! 👋</div>
+      <select class="fsel" id="workerSelect">
+        <option value="">Select your name...</option>
+        <option value="1">Maria G.</option>
+        <option value="2">Carlos R.</option>
+        <option value="3">Ana L.</option>
+        <option value="4">David M.</option>
+        <option value="5">Rosa P.</option>
+        <option value="6">James T.</option>
+      </select>
+      <input class="finp" type="password" placeholder="PIN (use 1234)" id="pinInput" maxlength="4" inputmode="numeric">
+      <button class="btn-big" onclick="doLogin()">Clock In & Start Shift →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MAIN APP ──────────────────────────────────────── -->
+<div class="page" id="pg-app">
+
+  <!-- HEADER -->
+  <div class="header" id="mainHeader">
+    <div class="header-top">
+      <div class="header-worker">
+        <div class="hav" id="hWorkerIni">MG</div>
+        <div>
+          <div class="hname" id="hWorkerName">Maria G.</div>
+          <div class="hdate" id="hDate"></div>
+        </div>
+      </div>
+      <button class="h-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+    <div class="prog-strip">
+      <div class="prog-bar-wrap">
+        <div class="prog-lbl">Today's Progress</div>
+        <div class="prog-bar"><div class="prog-fill" id="hProgFill" style="width:0%"></div></div>
+      </div>
+      <div class="prog-nums" id="hProgNums">0/0</div>
+      <div class="finish-pill">
+        <small>Finish</small>
+        <span id="hFinish">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body" id="mainBody">
+
+    <!-- MY ROOMS TAB -->
+    <div id="tab-rooms">
+      <div id="nextRoomCard"></div>
+      <div class="section-title" id="secPending">Remaining Rooms</div>
+      <div id="roomList"></div>
+      <div class="section-title" id="secDone" style="display:none">Completed</div>
+      <div id="doneList"></div>
+    </div>
+
+    <!-- REQUESTS TAB -->
+    <div id="tab-reqs" style="display:none">
+      <div id="reqContent"></div>
+    </div>
+
+    <!-- BREAK TAB -->
+    <div id="tab-break" style="display:none">
+      <div class="stats-row">
+        <div class="scard">
+          <div class="scard-lbl">Rooms Done</div>
+          <div class="scard-val" id="bComp" style="color:var(--pine)">0</div>
+        </div>
+        <div class="scard">
+          <div class="scard-lbl">Est. Finish</div>
+          <div class="scard-val" id="bFinish" style="font-size:18px;padding-top:2px">—</div>
+        </div>
+      </div>
+      <div class="break-section">
+        <div style="font-size:18px;font-weight:800" id="bTitle">Take a Break</div>
+        <div class="break-sub" id="bSub">You've earned it! 30 min break available.</div>
+        <div class="break-timer" id="bTimer">30:00</div>
+        <button class="break-btn break-start" id="bBtn" onclick="toggleBreak()">Start Break Timer</button>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- ROOM DETAIL (overlay) -->
+  <div style="display:none;flex-direction:column;background:var(--bg);min-height:100vh;position:fixed;inset:0;z-index:40;overflow-y:auto" id="roomDetail">
+    <div class="detail-header">
+      <button class="back-btn" onclick="closeDetail()">←</button>
+      <div>
+        <div class="det-room-num" id="detNum">Room 101</div>
+        <div class="det-room-type" id="detType">Checkout</div>
+      </div>
+      <div style="margin-left:auto" id="detBadge"></div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="det-status-bar" id="detStatusBar"></div>
+
+    <div style="padding:16px 16px 100px" id="detBody"></div>
+
+    <div class="action-strip" id="detActions"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav" id="mainBnav">
+    <button class="bnav-btn on" id="bn-rooms" onclick="bNav('rooms',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+      My Rooms
+    </button>
+    <button class="bnav-btn" id="bn-reqs" onclick="bNav('reqs',this)" style="position:relative">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M4 4h16a1 1 0 011 1v11a1 1 0 01-1 1H8l-5 3V5a1 1 0 011-1z"/>
+      </svg>
+      Requests
+      <div class="bnav-pip" id="reqPip"></div>
+    </button>
+    <button class="bnav-btn" id="bn-break" onclick="bNav('break',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+      </svg>
+      Break
+    </button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────
+const WORKERS = {
+  1:{name:'Maria G.',ini:'MG'},2:{name:'Carlos R.',ini:'CR'},
+  3:{name:'Ana L.',ini:'AL'},4:{name:'David M.',ini:'DM'},
+  5:{name:'Rosa P.',ini:'RP'},6:{name:'James T.',ini:'JT'}
+};
+
+const MINS = {CO:25,SO:15,DC:35,SR:10};
+const TNAME = {CO:'Checkout Room',SO:'Stayover Room',DC:'Deep Clean',SR:'Room Service'};
+const CL = ['Bed made','Bathroom cleaned','Towels replaced','Trash removed','Vacuum done','Amenities restocked','Surfaces sanitized','Final inspection'];
+const NOTES = ['','','','','Pet room – use hypoallergenic supplies','Guest requested extra pillows','Early check-in – priority clean','Maintenance ticket – report broken AC'];
+const ICONS = {'Extra Towels':'🛁','Extra Toiletries':'🧴','Quick Cleanup':'🧹','Linen Replacement':'🛏️','Trash Pickup':'🗑️','Other':'📋'};
+
+let currentWorker = null;
+let myRooms = [];
+let myReqs = [];
+let onBreak = false;
+let breakSecs = 1800;
+let breakInterval = null;
+let activeTab = 'rooms';
+let sharedMode = false; // true if reading from supervisor data
+
+// ── SYNC MANAGER (MongoDB API) ──────────────────────────────
+const API = window.location.origin;
+
+const SyncManager = {
+  pollTimer: null,
+
+  async hasSharedData() {
+    try {
+      const res = await fetch(API + '/api/rooms');
+      const rooms = await res.json();
+      return rooms.length > 0;
+    } catch (e) { return false; }
+  },
+
+  async loadSharedRooms(workerId) {
+    try {
+      const [roomsRes, reqsRes] = await Promise.all([
+        fetch(API + '/api/rooms?worker=' + workerId),
+        fetch(API + '/api/requests')
+      ]);
+      const myRoomsData = await roomsRes.json();
+      const allReqs = await reqsRes.json();
+
+      myRooms = myRoomsData;
+      myRooms.sort((a,b) => {
+        const p = {urgent:0,high:1,normal:2};
+        return (p[a.priority]||2) - (p[b.priority]||2) || a.floor - b.floor;
+      });
+
+      // Show requests for rooms assigned to this worker
+      myReqs = allReqs.filter(req => {
+        const room = myRoomsData.find(r => r.id === req.room);
+        return room !== undefined;
+      });
+      return myRooms.length > 0;
+    } catch(e) { return false; }
+  },
+
+  async saveRoom(roomId) {
+    if (!sharedMode) return;
+    const room = myRooms.find(r => r.id === roomId);
+    if (!room) return;
+    try {
+      await fetch(API + '/api/rooms/' + roomId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: room.status, checklist: room.checklist })
+      });
+    } catch(e) { console.warn('saveRoom failed:', e); }
+  },
+
+  async saveRequest(reqId, done) {
+    if (!sharedMode) return;
+    try {
+      await fetch(API + '/api/requests/' + reqId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ done })
+      });
+    } catch(e) { console.warn('saveRequest failed:', e); }
+  },
+
+  async saveWorkerStats() {
+    if (!sharedMode || !currentWorker) return;
+    try {
+      const completedRooms = myRooms.filter(r => r.status === 'complete').length;
+      await fetch(API + '/api/workers/' + currentWorker, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ onBreak, completed: completedRooms, clockedIn: true })
+      });
+    } catch(e) { console.warn('saveWorkerStats failed:', e); }
+  },
+
+  async reloadFromShared() {
+    if (!sharedMode || !currentWorker) return;
+    try {
+      const [roomsRes, reqsRes] = await Promise.all([
+        fetch(API + '/api/rooms?worker=' + currentWorker),
+        fetch(API + '/api/requests')
+      ]);
+      const newRooms = await roomsRes.json();
+      const newReqs = await reqsRes.json();
+
+      // Check if data actually changed
+      const changed = JSON.stringify(newRooms) !== JSON.stringify(myRooms) ||
+                      JSON.stringify(newReqs.filter(req => newRooms.some(r => r.id === req.room))) !== JSON.stringify(myReqs);
+
+      if (changed) {
+        myRooms = newRooms;
+        myRooms.sort((a,b) => {
+          const p = {urgent:0,high:1,normal:2};
+          return (p[a.priority]||2) - (p[b.priority]||2) || a.floor - b.floor;
+        });
+        myReqs = newReqs.filter(req => myRooms.some(r => r.id === req.room));
+
+        renderRooms();
+        renderReqs();
+        updateHeader();
+        if (activeTab === 'break') renderBreakTab();
+      }
+    } catch (e) { /* ignore network error, keep current UI */ }
+  },
+
+  startPolling() {
+    if (this.pollTimer) clearInterval(this.pollTimer);
+    this.pollTimer = setInterval(() => this.reloadFromShared(), 3000);
+  },
+
+  stopPolling() {
+    if (this.pollTimer) clearInterval(this.pollTimer);
+  },
+
+  // Legacy call cleanup
+  saveToShared() { /* replaced by specific hooks */ }
+};
+
+async function doLogin(){
+  const wid = document.getElementById('workerSelect').value;
+  const pin = document.getElementById('pinInput').value;
+  if(!wid){showToast('Please select your name');return;}
+  if(pin!=='1234'){showToast('Incorrect PIN. Use 1234');return;}
+  currentWorker = parseInt(wid);
+  
+  // Try to load from shared supervisor data first via API
+  const hasShared = await SyncManager.hasSharedData();
+  if (hasShared) {
+    const loaded = await SyncManager.loadSharedRooms(currentWorker);
+    if (loaded) sharedMode = true;
+    else genMyRooms(currentWorker); // fallback
+  } else {
+    genMyRooms(currentWorker); // fallback
+  }
+
+  const w = WORKERS[currentWorker];
+  document.getElementById('hWorkerIni').textContent = w.ini;
+  document.getElementById('hWorkerName').textContent = w.name;
+  document.getElementById('hDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('pg-login').classList.remove('on');
+  document.getElementById('pg-app').classList.add('on');
+  
+  if (sharedMode) {
+    SyncManager.saveWorkerStats(); // clocked in
+    SyncManager.startPolling();
+  }
+
+  renderRooms();
+  renderReqs();
+  updateHeader();
+  showToast('Welcome, '+w.name+'! Good luck today.');
+}
+
+function doLogout(){
+  if (sharedMode && currentWorker) {
+    const w = WORKERS[currentWorker];
+    SyncManager.stopPolling();
+    // we don't block logout on network
+    fetch(API + '/api/workers/' + currentWorker, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clockedIn: false })
+    }).catch(e=>{});
+  }
+  
+  document.getElementById('pg-app').classList.remove('on');
+  document.getElementById('pg-login').classList.add('on');
+  document.getElementById('workerSelect').value='';
+  document.getElementById('pinInput').value='';
+  if(breakInterval)clearInterval(breakInterval);
+  onBreak=false;
+  sharedMode=false;
+  currentWorker=null;
+  bNav('rooms',document.getElementById('bn-rooms'));
+}
+
+// ── BOTTOM NAV ────────────────────────────────────────────
+function bNav(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('tab-rooms').style.display = tab==='rooms'?'block':'none';
+  document.getElementById('tab-reqs').style.display = tab==='reqs'?'block':'none';
+  document.getElementById('tab-break').style.display = tab==='break'?'block':'none';
+  if(tab==='break')renderBreakTab();
+}
+
+// ── HEADER ────────────────────────────────────────────────
+function updateHeader(){
+  const done = myRooms.filter(r=>r.status==='complete').length;
+  const total = myRooms.length;
+  const pct = total?Math.round(done/total*100):0;
+  document.getElementById('hProgFill').style.width = pct+'%';
+  document.getElementById('hProgNums').textContent = done+'/'+total;
+  const remMins = myRooms.filter(r=>r.status!=='complete').reduce((s,r)=>s+(MINS[r.type]||20),0);
+  document.getElementById('hFinish').textContent = estTime(remMins);
+}
+
+// ── ROOMS TAB ─────────────────────────────────────────────
+function renderRooms(){
+  const pending = myRooms.filter(r=>r.status!=='complete');
+  const done = myRooms.filter(r=>r.status==='complete');
+  const next = pending[0];
+
+  // Next room card
+  if(next){
+    const clDone = next.checklist.filter(Boolean).length;
+    document.getElementById('nextRoomCard').innerHTML = `
+      <div class="next-card">
+        <div class="next-tag">Next Room</div>
+        <div class="next-num">${next.id}</div>
+        <div class="next-type">${TNAME[next.type]} · Floor ${next.floor}</div>
+        <div class="next-meta">
+          <div class="nmeta-chip">⏱ ${MINS[next.type]} min</div>
+          ${next.priority==='urgent'?'<div class="nmeta-chip" style="background:rgba(192,57,43,0.3);color:#ff9a9a">🔴 Urgent</div>':''}
+          <div class="nmeta-chip">${clDone}/8 checked</div>
+        </div>
+        <div class="next-actions">
+          <button class="nact-btn nact-start" onclick="openDetail(${next.id})">${next.status==='inprogress'?'Continue Cleaning →':'Start Cleaning →'}</button>
+          ${pending.length>1?`<button class="nact-btn nact-skip" onclick="skipRoom(${next.id})">Skip</button>`:''}
+        </div>
+      </div>`;
+  } else {
+    document.getElementById('nextRoomCard').innerHTML = `
+      <div class="next-card">
+        <div class="next-tag">All Done!</div>
+        <div style="font-size:36px;margin:12px 0">🎉</div>
+        <div class="next-type" style="color:rgba(255,255,255,0.9);font-size:16px">All your rooms are complete!</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:8px">Great work today. Let the supervisor know.</div>
+      </div>`;
+  }
+
+  // Pending list
+  const rem = pending.slice(1);
+  document.getElementById('secPending').style.display = rem.length?'':'none';
+  document.getElementById('roomList').innerHTML = rem.map(r=>roomItem(r)).join('');
+
+  // Done list
+  document.getElementById('secDone').style.display = done.length?'':'none';
+  document.getElementById('doneList').innerHTML = done.map(r=>roomItem(r)).join('');
+
+  updateHeader();
+}
+
+function roomItem(r){
+  let rbCls = 'rb-assigned';
+  if(r.status==='complete') rbCls='rb-complete';
+  else if(r.status==='inprogress') rbCls='rb-inprog';
+  else if(r.priority==='urgent') rbCls='rb-urgent';
+
+  let chip = '<span class="chip chip-gray">Assigned</span>';
+  if(r.status==='complete') chip='<span class="chip chip-green"><span class="chip-dot"></span>Done</span>';
+  else if(r.status==='inprogress') chip='<span class="chip chip-blue"><span class="chip-dot"></span>In Progress</span>';
+  else if(r.priority==='urgent') chip='<span class="chip chip-red"><span class="chip-dot"></span>Urgent</span>';
+
+  const clDone = r.checklist.filter(Boolean).length;
+
+  return `<div class="room-item" onclick="openDetail(${r.id})">
+    <div class="room-num-badge ${rbCls}">${r.id}</div>
+    <div class="ri-content">
+      <div class="ri-top"><span class="ri-name">Room ${r.id}</span>${chip}</div>
+      <div class="ri-sub">${TNAME[r.type]} · Floor ${r.floor} · ${MINS[r.type]}min · ${clDone}/8 ✓</div>
+    </div>
+    <div class="ri-arrow">›</div>
+  </div>`;
+}
+
+function skipRoom(id){
+  const idx = myRooms.findIndex(r=>r.id===id);
+  if(idx<0||idx>=myRooms.length-1)return;
+  const [room] = myRooms.splice(idx,1);
+  const nextDone = myRooms.findIndex(r=>r.status==='complete');
+  myRooms.splice(nextDone>0?nextDone:myRooms.length,0,room);
+  showToast('Room '+id+' moved down the list');
+  renderRooms();
+}
+
+// ── ROOM DETAIL ───────────────────────────────────────────
+function openDetail(id){
+  const r = myRooms.find(x=>x.id===id);
+  document.getElementById('detNum').textContent = 'Room '+r.id;
+  document.getElementById('detType').textContent = TNAME[r.type]+' · Floor '+r.floor;
+
+  // Status badge
+  let badge='';
+  if(r.status==='complete') badge='<span class="chip chip-green"><span class="chip-dot"></span>Done</span>';
+  else if(r.status==='inprogress') badge='<span class="chip chip-blue"><span class="chip-dot"></span>In Progress</span>';
+  else if(r.priority==='urgent') badge='<span class="chip chip-red">Urgent</span>';
+  else badge='<span class="chip chip-orange">Assigned</span>';
+  document.getElementById('detBadge').innerHTML=badge;
+
+  // Status steps
+  const steps=[{l:'Assigned',k:'assigned'},{l:'Cleaning',k:'inprogress'},{l:'Done',k:'complete'}];
+  const sIdx = steps.findIndex(s=>s.k===r.status);
+  document.getElementById('detStatusBar').innerHTML = steps.map((s,i)=>`
+    <div class="dsbar-step ${i<sIdx?'done':i===sIdx?'active':''}">
+      <div class="dsbar-dot">${i<sIdx?'✓':i+1}</div>
+      <div class="dsbar-lbl">${s.l}</div>
+    </div>`).join('');
+
+  // Body
+  document.getElementById('detBody').innerHTML = `
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <div class="scard" style="flex:1"><div class="scard-lbl">Est. Time</div><div class="scard-val">${MINS[r.type]}m</div></div>
+      <div class="scard" style="flex:1"><div class="scard-lbl">Floor</div><div class="scard-val">${r.floor}</div></div>
+      <div class="scard" style="flex:1"><div class="scard-lbl">Checked</div><div class="scard-val">${r.checklist.filter(Boolean).length}/8</div></div>
+    </div>
+    ${r.note?`<div class="note-alert">📋 ${r.note}</div>`:''}
+    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);margin-bottom:10px">Cleaning Checklist</div>
+    ${CL.map((label,i)=>`
+      <div class="cl-item ${r.checklist[i]?'checked':''}" onclick="togCL(${r.id},${i})">
+        <div class="cl-check">${r.checklist[i]?'✓':''}</div>
+        <span class="cl-label">${label}</span>
+      </div>`).join('')}
+  `;
+
+  // Action strip
+  const acts = {
+    assigned: {p:'Start Cleaning',s:null},
+    inprogress: {p:'Mark Complete ✓',s:'Pause'},
+    complete: {p:'View Only',s:null}
+  };
+  const act = acts[r.status]||acts.assigned;
+  document.getElementById('detActions').innerHTML = `
+    ${act.s?`<button class="act-btn act-secondary" onclick="pauseRoom(${r.id})">${act.s}</button>`:''}
+    <button class="act-btn act-primary" onclick="advanceRoom(${r.id})" ${r.status==='complete'?'disabled style="opacity:0.5"':''}>${act.p}</button>
+  `;
+
+  document.getElementById('roomDetail').style.display='flex';
+}
+
+function closeDetail(){document.getElementById('roomDetail').style.display='none';renderRooms();}
+
+function togCL(id,i){
+  const r=myRooms.find(x=>x.id===id);
+  r.checklist[i]=!r.checklist[i];
+  if(r.status==='assigned'&&r.checklist.some(Boolean)){r.status='inprogress';}
+  SyncManager.saveRoom(id);
+  openDetail(id);
+  updateHeader();
+}
+
+function advanceRoom(id){
+  const r=myRooms.find(x=>x.id===id);
+  if(r.status==='assigned'){r.status='inprogress';SyncManager.saveRoom(id);showToast('Started Room '+id);}
+  else if(r.status==='inprogress'){
+    r.status='complete';
+    r.checklist=r.checklist.map(()=>true);
+    SyncManager.saveRoom(id);
+    SyncManager.saveWorkerStats();
+    showToast('Room '+id+' marked complete! ✓');
+    closeDetail();
+    renderRooms();
+    renderBreakTab(); // updates comp count
+    return;
+  }
+  openDetail(id);
+  updateHeader();
+}
+
+function pauseRoom(id){
+  const r=myRooms.find(x=>x.id===id);
+  if(r.status==='inprogress'){r.status='assigned';SyncManager.saveRoom(id);showToast('Room '+id+' paused');}
+  closeDetail();
+}
+
+// ── REQUESTS TAB ──────────────────────────────────────────
+function renderReqs(){
+  const pending = myReqs.filter(r=>!r.done);
+  document.getElementById('reqPip').style.display = pending.length?'':'none';
+  document.getElementById('reqContent').innerHTML = pending.length
+    ? `<div class="section-title">Assigned to You</div>`+pending.map(r=>`
+        <div class="req-card ${r.pri==='Urgent'?'req-urgent':''}">
+          <div class="req-ic">${ICONS[r.type]||'📋'}</div>
+          <div style="flex:1">
+            <div class="req-title">Room ${r.room} · ${r.type}</div>
+            <div class="req-sub">${r.time} · <span class="chip ${r.pri==='Urgent'?'chip-red':r.pri==='High'?'chip-orange':'chip-gray'}">${r.pri}</span></div>
+          </div>
+          <button class="req-done-btn" onclick="doneReq(${r.id})">Done</button>
+        </div>`).join('')
+    : `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">No requests!</div><div class="empty-sub">You're all caught up.</div></div>`;
+}
+
+function doneReq(id){
+  const r=myReqs.find(x=>x.id===id);
+  if(r){r.done=true;SyncManager.saveRequest(r.id, true);showToast('Request for Room '+r.room+' done');}
+  renderReqs();
+}
+
+// ── BREAK TAB ─────────────────────────────────────────────
+function renderBreakTab(){
+  const done=myRooms.filter(r=>r.status==='complete').length;
+  document.getElementById('bComp').textContent=done;
+  const rem=myRooms.filter(r=>r.status!=='complete').reduce((s,r)=>s+(MINS[r.type]||20),0);
+  document.getElementById('bFinish').textContent=estTime(rem);
+  updateBreakDisplay();
+}
+
+function updateBreakDisplay(){
+  const m=Math.floor(breakSecs/60).toString().padStart(2,'0');
+  const s=(breakSecs%60).toString().padStart(2,'0');
+  document.getElementById('bTimer').textContent=m+':'+s;
+  document.getElementById('bTitle').textContent=onBreak?'Break in Progress':'Take a Break';
+  document.getElementById('bSub').textContent=onBreak?'Timer running...':'You\'ve earned it! 30 min break.';
+  const btn=document.getElementById('bBtn');
+  btn.textContent=onBreak?'End Break Early':'Start Break Timer';
+  btn.className='break-btn '+(onBreak?'break-end':'break-start');
+}
+
+function toggleBreak(){
+  onBreak=!onBreak;
+  if(onBreak){
+    breakSecs=1800;
+    breakInterval=setInterval(()=>{
+      if(!onBreak){clearInterval(breakInterval);return;}
+      breakSecs--;
+      if(breakSecs<=0){clearInterval(breakInterval);onBreak=false;breakSecs=0;showToast('Break time over!');SyncManager.saveWorkerStats();}
+      updateBreakDisplay();
+    },1000);
+    showToast('Break started! Rest up.');
+  } else {
+    clearInterval(breakInterval);
+    breakSecs=1800;
+    showToast('Break ended. Back to work!');
+  }
+  SyncManager.saveWorkerStats();
+  updateBreakDisplay();
+}
+
+// ── UTILS ─────────────────────────────────────────────────
+function estTime(mins){
+  const n=new Date();
+  n.setMinutes(n.getMinutes()+mins);
+  return n.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// Clock
+setInterval(()=>{
+  if(document.getElementById('hDate').textContent)
+    document.getElementById('hDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+},60000);
+
+// Init SyncManager
+SyncManager.init();
+</script>
+</body>
+</html>
