@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Quinta — Housekeeping Operations</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F2EFE9;
+    --border: #E0DDD6;
+    --border2: #CCC9C0;
+    --text: #1A1916;
+    --text2: #6B6860;
+    --text3: #9E9B93;
+    --accent: #1A3A2E;
+    --accent-light: #E8F0EC;
+    --accent-mid: #2E6B52;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --orange: #D35400;
+    --orange-light: #FEF0E6;
+    --blue: #1A5276;
+    --blue-light: #EAF2FA;
+    --green: #1E8449;
+    --green-light: #EAFAF1;
+    --yellow: #B7770D;
+    --yellow-light: #FEF9E7;
+    --purple: #6C3483;
+    --purple-light: #F5EEF8;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 8px;
+    --radius-lg: 14px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* LAYOUT */
+  .app { display: flex; height: 100vh; overflow: hidden; }
+  
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    background: var(--accent);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .sidebar-logo .brand {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .sidebar-logo .title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .sidebar-date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    font-family: var(--mono);
+    margin-top: 3px;
+  }
+
+  .nav {
+    flex: 1;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+    font-weight: 400;
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    text-align: left;
+    width: 100%;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); }
+  .nav-item.active { background: rgba(255,255,255,0.14); color: #fff; font-weight: 500; }
+
+  .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  .sidebar-status {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #2ECC71;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .topbar-time {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border2);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+
+  .btn:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: var(--accent-mid); border-color: var(--accent-mid); color: #fff; }
+
+  .btn-danger {
+    background: var(--red-light);
+    border-color: #F1948A;
+    color: var(--red);
+  }
+
+  .content { padding: 20px 24px; flex: 1; }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* STAT GRID */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    font-family: var(--mono);
+  }
+
+  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* GRID LAYOUTS */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s;
+  }
+
+  /* ROOM TABLE */
+  .room-table { width: 100%; border-collapse: collapse; }
+
+  .room-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .room-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .room-table tr:last-child td { border-bottom: none; }
+  .room-table tr:hover td { background: var(--surface2); }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+  .badge-red { background: var(--red-light); color: var(--red); }
+  .badge-orange { background: var(--orange-light); color: var(--orange); }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-yellow { background: var(--yellow-light); color: var(--yellow); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); }
+  .badge-gray { background: var(--surface2); color: var(--text2); }
+
+  /* WORKER CARDS */
+  .worker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  .worker-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .worker-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+
+  .worker-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .worker-name { font-weight: 600; font-size: 14px; }
+  .worker-role { font-size: 11px; color: var(--text2); }
+
+  .worker-stat { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .worker-stat:last-child { border-bottom: none; }
+  .worker-stat-label { color: var(--text2); }
+  .worker-stat-value { font-weight: 600; font-family: var(--mono); }
+
+  /* ROOM STATUS MAP */
+  .floor-section { margin-bottom: 20px; }
+  .floor-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text2);
+    margin-bottom: 10px;
+  }
+
+  .room-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .room-box {
+    width: 52px;
+    height: 44px;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1.5px solid;
+    transition: transform 0.1s;
+    font-family: var(--mono);
+  }
+
+  .room-box:hover { transform: scale(1.08); }
+  .room-box .rn { font-size: 12px; font-weight: 600; }
+  .room-box .rt { font-size: 9px; margin-top: 1px; opacity: 0.7; }
+
+  .room-unassigned { background: var(--surface2); border-color: var(--border2); color: var(--text2); }
+  .room-assigned { background: var(--orange-light); border-color: #E67E22; color: var(--orange); }
+  .room-inprogress { background: var(--blue-light); border-color: #2980B9; color: var(--blue); }
+  .room-complete { background: var(--green-light); border-color: #27AE60; color: var(--green); }
+  .room-urgent { background: var(--red-light); border-color: var(--red); color: var(--red); }
+  .room-service { background: var(--purple-light); border-color: #8E44AD; color: var(--purple); }
+
+  /* FORM ELEMENTS */
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+  .form-input, .form-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 13px;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border2);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .check-item.checked .check-box {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+  .check-item.checked .check-label { text-decoration: line-through; color: var(--text3); }
+
+  /* REQUEST ITEMS */
+  .request-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    background: var(--surface);
+    transition: border-color 0.15s;
+  }
+  .request-item:hover { border-color: var(--accent); }
+  .request-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    background: var(--purple-light);
+    color: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .request-info { flex: 1; }
+  .request-title { font-weight: 600; font-size: 13px; }
+  .request-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 8px 18px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  /* NOTIFICATION */
+  .notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--accent);
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: var(--radius-lg);
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 9999;
+    box-shadow: var(--shadow-md);
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .notification.show { transform: translateX(0); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    width: 480px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    transform: translateY(20px);
+    transition: transform 0.25s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  /* TOOLTIP */
+  .tooltip-wrap { position: relative; }
+  .tooltip {
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: var(--surface);
+    font-size: 11px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 50;
+  }
+  .tooltip-wrap:hover .tooltip { opacity: 1; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">La Quinta Inn</div>
+      <div class="title">Housekeeping Ops</div>
+      <div class="sidebar-date" id="sidebarDate"></div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" onclick="showScreen('dashboard', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.9"/>
+          <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.6"/>
+          <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.6"/>
+          <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.9"/>
+        </svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showScreen('roommap', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="1" width="4" height="4" rx="1" fill="currentColor"/>
+          <rect x="6" y="1" width="4" height="4" rx="1" fill="currentColor" opacity="0.7"/>
+          <rect x="11" y="1" width="4" height="4" rx="1" fill="currentColor"/>
+          <rect x="1" y="6" width="4" height="4" rx="1" fill="currentColor" opacity="0.7"/>
+          <rect x="6" y="6" width="4" height="4" rx="1" fill="currentColor"/>
+          <rect x="11" y="6" width="4" height="4" rx="1" fill="currentColor" opacity="0.7"/>
+          <rect x="1" y="11" width="4" height="4" rx="1" fill="currentColor"/>
+          <rect x="6" y="11" width="4" height="4" rx="1" fill="currentColor" opacity="0.7"/>
+          <rect x="11" y="11" width="4" height="4" rx="1" fill="currentColor"/>
+        </svg>
+        Room Map
+      </button>
+      <button class="nav-item" onclick="showScreen('assignments', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1.5C6.07 1.5 4.5 3.07 4.5 5S6.07 8.5 8 8.5 11.5 6.93 11.5 5 9.93 1.5 8 1.5Z" fill="currentColor" opacity="0.9"/>
+          <path d="M2.5 14.5C2.5 11.74 4.96 9.5 8 9.5s5.5 2.24 5.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Assignments
+      </button>
+      <button class="nav-item" onclick="showScreen('workers', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+          <circle cx="5.5" cy="4.5" r="2.5" fill="currentColor" opacity="0.8"/>
+          <circle cx="10.5" cy="4.5" r="2.5" fill="currentColor" opacity="0.6"/>
+          <path d="M1 13.5c0-2.49 2.02-4.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M7.5 13.5c0-2.49 2.02-4.5 4.5-4.5H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Workers
+      </button>
+      <button class="nav-item" onclick="showScreen('requests', this)" id="navRequests">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+          <path d="M3 2h10a1 1 0 011 1v8a1 1 0 01-1 1H5l-3 2V3a1 1 0 011-1z" fill="currentColor" opacity="0.8"/>
+        </svg>
+        Room Requests
+        <span class="nav-badge" id="requestBadge">3</span>
+      </button>
+      <button class="nav-item" onclick="showScreen('calculator', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M5 5h6M5 8h6M5 11h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Staffing Calc
+      </button>
+      <button class="nav-item" onclick="showScreen('reports', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M5 10V12M8 7v5M11 5v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Reports
+      </button>
+    </nav>
+
+    <div class="sidebar-status">
+      <span class="status-dot"></span>Shift active · 7:00 AM
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Supervisor Dashboard</div>
+      <div class="topbar-time" id="topbarTime"></div>
+      <button class="btn" onclick="openModal('addRoomModal')">+ Add Request</button>
+      <button class="btn btn-primary" onclick="autoAssign()">Auto-Assign Rooms</button>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="screen active" id="screen-dashboard">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Rooms Today</div>
+            <div class="stat-value" id="statTotal">60</div>
+            <div class="stat-sub">Checkout + Stayover</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value" id="statCompleted" style="color:var(--green)">0</div>
+            <div class="stat-sub" id="statCompPct">0% done</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value" id="statInProgress" style="color:var(--blue)">0</div>
+            <div class="stat-sub">Being cleaned now</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Est. Finish Time</div>
+            <div class="stat-value" id="statFinish" style="font-size:20px;padding-top:4px">3:45 PM</div>
+            <div class="stat-sub" id="statWorkers">6 workers active</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <!-- ROOM STATUS BREAKDOWN -->
+          <div class="card">
+            <div class="card-title">Room Status Breakdown</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                  <span>Checkout Rooms</span>
+                  <span style="font-family:var(--mono);font-weight:600"><span id="brkCheckout">35</span> / 35</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progCheckout" style="width:0%;background:var(--red)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                  <span>Stayover Rooms</span>
+                  <span style="font-family:var(--mono);font-weight:600"><span id="brkStayover">25</span> / 25</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progStayover" style="width:0%;background:var(--blue)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                  <span>Room Requests</span>
+                  <span style="font-family:var(--mono);font-weight:600"><span id="brkRequests">3</span> pending</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progRequests" style="width:25%;background:var(--purple)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                  <span>Urgent / Rush</span>
+                  <span style="font-family:var(--mono);font-weight:600"><span id="brkUrgent">4</span> rooms</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progUrgent" style="width:0%;background:var(--orange)"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WORKER STATUS -->
+          <div class="card">
+            <div class="card-title">Worker Overview <span style="font-size:11px;color:var(--text3);text-transform:none;font-weight:400;letter-spacing:0">6 clocked in</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px" id="dashWorkerList"></div>
+          </div>
+        </div>
+
+        <!-- LIVE ROOM LOG -->
+        <div class="card">
+          <div class="card-title">Live Room Activity</div>
+          <table class="room-table" id="liveRoomTable">
+            <thead>
+              <tr>
+                <th>Room</th>
+                <th>Floor</th>
+                <th>Type</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Time Est.</th>
+                <th>Notes</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="liveRoomBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ROOM MAP -->
+      <div class="screen" id="screen-roommap">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--surface2);border:1.5px solid var(--border2)"></div>Unassigned</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red-light);border:1.5px solid var(--red)"></div>Urgent</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--orange-light);border:1.5px solid #E67E22"></div>Assigned</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--blue-light);border:1.5px solid #2980B9"></div>In Progress</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green-light);border:1.5px solid #27AE60"></div>Complete</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--purple-light);border:1.5px solid #8E44AD"></div>Room Service</div>
+        </div>
+        <div id="floorMap"></div>
+      </div>
+
+      <!-- ASSIGNMENTS -->
+      <div class="screen" id="screen-assignments">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'tab-all')">All Rooms</div>
+          <div class="tab" onclick="switchTab(this,'tab-checkout')">Checkout</div>
+          <div class="tab" onclick="switchTab(this,'tab-stayover')">Stayover</div>
+          <div class="tab" onclick="switchTab(this,'tab-urgent')">Urgent</div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div class="card-title" style="margin-bottom:0">Room Assignments</div>
+            <button class="btn btn-primary" onclick="autoAssign()">Auto-Assign All</button>
+          </div>
+          <table class="room-table">
+            <thead>
+              <tr><th>Room</th><th>Floor</th><th>Type</th><th>Priority</th><th>Assigned To</th><th>Status</th><th>Est. Time</th><th>Action</th></tr>
+            </thead>
+            <tbody id="assignmentBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- WORKERS -->
+      <div class="screen" id="screen-workers">
+        <div class="worker-grid" id="workerGrid"></div>
+      </div>
+
+      <!-- REQUESTS -->
+      <div class="screen" id="screen-requests">
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Pending Requests</div>
+            <div id="requestList"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Add New Request</div>
+            <div class="form-group">
+              <label class="form-label">Room Number</label>
+              <input class="form-input" id="reqRoom" type="number" placeholder="e.g. 204">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Request Type</label>
+              <select class="form-select" id="reqType">
+                <option>Extra Towels</option>
+                <option>Extra Toiletries</option>
+                <option>Quick Cleanup</option>
+                <option>Linen Replacement</option>
+                <option>Trash Pickup</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select class="form-select" id="reqPriority">
+                <option>Normal</option>
+                <option>High</option>
+                <option>Urgent</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Notes</label>
+              <input class="form-input" id="reqNotes" type="text" placeholder="Any special instructions...">
+            </div>
+            <button class="btn btn-primary" onclick="addRequest()" style="width:100%">Submit Request</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAFFING CALCULATOR -->
+      <div class="screen" id="screen-calculator">
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Room Input</div>
+            <div class="form-group">
+              <label class="form-label">Checkout Rooms</label>
+              <input class="form-input" id="calcCheckout" type="number" value="35" oninput="calcStaffing()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stayover Rooms</label>
+              <input class="form-input" id="calcStayover" type="number" value="25" oninput="calcStaffing()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Room Service Requests</label>
+              <input class="form-input" id="calcRequests" type="number" value="3" oninput="calcStaffing()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Deep Clean Rooms</label>
+              <input class="form-input" id="calcDeep" type="number" value="0" oninput="calcStaffing()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shift Length (hours)</label>
+              <input class="form-input" id="calcShift" type="number" value="8" oninput="calcStaffing()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Break Time (minutes)</label>
+              <input class="form-input" id="calcBreak" type="number" value="30" oninput="calcStaffing()">
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-title">Calculation Results</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="stat-card">
+                  <div class="stat-label">Total Work Minutes</div>
+                  <div class="stat-value" id="resTotalMin" style="font-size:22px">1200</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Workers Needed</div>
+                  <div class="stat-value" id="resWorkers" style="font-size:22px;color:var(--accent)">3</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Effective Min/Worker</div>
+                  <div class="stat-value" id="resEffective" style="font-size:22px">450</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Est. Finish</div>
+                  <div class="stat-value" id="resFinish" style="font-size:18px;padding-top:4px">3:40 PM</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Cleaning Time Reference</div>
+              <table class="room-table">
+                <thead><tr><th>Room Type</th><th>Minutes</th><th>Workload Weight</th></tr></thead>
+                <tbody>
+                  <tr><td>Checkout Room</td><td style="font-family:var(--mono)">25 min</td><td><span class="badge badge-red">1.25×</span></td></tr>
+                  <tr><td>Stayover Room</td><td style="font-family:var(--mono)">15 min</td><td><span class="badge badge-blue">0.75×</span></td></tr>
+                  <tr><td>Deep Clean</td><td style="font-family:var(--mono)">35 min</td><td><span class="badge badge-orange">1.75×</span></td></tr>
+                  <tr><td>Room Service</td><td style="font-family:var(--mono)">10 min</td><td><span class="badge badge-purple">0.5×</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="screen" id="screen-reports">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title">End-of-Shift Report</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+            <div class="stat-card">
+              <div class="stat-label">Rooms Completed</div>
+              <div class="stat-value" id="rptCompleted" style="color:var(--green)">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Avg. Time/Room</div>
+              <div class="stat-value" id="rptAvgTime" style="font-size:20px;padding-top:4px">22 min</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Requests Handled</div>
+              <div class="stat-value" id="rptRequests">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">On-Time Rate</div>
+              <div class="stat-value" id="rptOnTime" style="font-size:20px;padding-top:4px;color:var(--green)">—</div>
+            </div>
+          </div>
+          <div class="card-title">Worker Performance</div>
+          <table class="room-table">
+            <thead><tr><th>Worker</th><th>Rooms Assigned</th><th>Completed</th><th>Avg. Time</th><th>Requests</th><th>Performance</th></tr></thead>
+            <tbody id="performanceBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<!-- ADD REQUEST MODAL -->
+<div class="modal-overlay" id="addRoomModal">
+  <div class="modal">
+    <div class="modal-title">Add Room Service Request</div>
+    <div class="form-group">
+      <label class="form-label">Room Number</label>
+      <input class="form-input" id="modalRoom" type="number" placeholder="e.g. 312">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Request Type</label>
+      <select class="form-select" id="modalType">
+        <option>Extra Towels</option>
+        <option>Extra Toiletries</option>
+        <option>Quick Cleanup</option>
+        <option>Linen Replacement</option>
+        <option>Trash Pickup</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Priority</label>
+      <select class="form-select" id="modalPriority">
+        <option>Normal</option>
+        <option>High</option>
+        <option>Urgent</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('addRoomModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitModalRequest()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROOM DETAIL MODAL -->
+<div class="modal-overlay" id="roomDetailModal">
+  <div class="modal" style="width:520px">
+    <div class="modal-title" id="roomDetailTitle">Room 101</div>
+    <div id="roomDetailContent"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('roomDetailModal')">Close</button>
+      <button class="btn btn-primary" id="roomDetailAction" onclick="">Update Status</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notification"></div>
+
+<script>
+// ============================================================
+// DATA MODEL
+// ============================================================
+const WORKERS = [
+  { id:1, name:'Maria G.', initials:'MG', rooms:[], completed:0, onBreak:false, clockedIn:true },
+  { id:2, name:'Carlos R.', initials:'CR', rooms:[], completed:0, onBreak:false, clockedIn:true },
+  { id:3, name:'Ana L.', initials:'AL', rooms:[], completed:0, onBreak:false, clockedIn:true },
+  { id:4, name:'David M.', initials:'DM', rooms:[], completed:0, onBreak:false, clockedIn:true },
+  { id:5, name:'Rosa P.', initials:'RP', rooms:[], completed:0, onBreak:false, clockedIn:true },
+  { id:6, name:'James T.', initials:'JT', rooms:[], completed:0, onBreak:false, clockedIn:true },
+];
+
+const ROOM_TYPES = { CO:'Checkout', SO:'Stayover', DC:'Deep Clean', SR:'Room Svc' };
+const TIME_ESTIMATES = { CO:25, SO:15, DC:35, SR:10 };
+const NOTES_POOL = ['', '', '', '', 'Pet room', 'Hypoallergenic setup', 'Early check-in', 'Maintenance issue', 'Extra dirty', 'Do not disturb'];
+
+let ROOMS = [];
+let REQUESTS = [];
+let currentRoomDetail = null;
+
+function generateRooms() {
+  ROOMS = [];
+  const floors = [1,2,3,4];
+  const roomsPerFloor = [8,8,12,12]; // some variety
+  const urgentRooms = new Set([101,205,312,408]);
+  
+  let roomNum = 100;
+  floors.forEach((fl, fi) => {
+    for (let r = 0; r < (fi < 2 ? 10 : 15); r++) {
+      roomNum++;
+      const typeRoll = Math.random();
+      let type = typeRoll < 0.58 ? 'CO' : 'SO';
+      if (typeRoll > 0.95) type = 'DC';
+      const note = NOTES_POOL[Math.floor(Math.random() * NOTES_POOL.length)];
+      ROOMS.push({
+        id: roomNum,
+        floor: fl,
+        type,
+        status: 'unassigned',
+        worker: null,
+        priority: urgentRooms.has(roomNum) ? 'urgent' : (type === 'CO' ? 'high' : 'normal'),
+        note,
+        startTime: null,
+        completeTime: null,
+        checklist: [false,false,false,false,false,false,false,false],
+      });
+    }
+  });
+
+  // Add some room service
+  REQUESTS = [
+    { id:1, room:207, type:'Extra Towels', priority:'Normal', time:'7:15 AM', worker:null, done:false },
+    { id:2, room:315, type:'Quick Cleanup', priority:'High', time:'7:42 AM', worker:null, done:false },
+    { id:3, room:412, type:'Linen Replacement', priority:'Urgent', time:'8:05 AM', worker:null, done:false },
+  ];
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showScreen(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  btn.classList.add('active');
+
+  const titles = {
+    dashboard: 'Supervisor Dashboard',
+    roommap: 'Floor Room Map',
+    assignments: 'Room Assignments',
+    workers: 'Worker Overview',
+    requests: 'Room Service Requests',
+    calculator: 'Staffing Calculator',
+    reports: 'Shift Reports',
+  };
+  document.getElementById('topbarTitle').textContent = titles[id] || id;
+  
+  if (id === 'roommap') renderFloorMap();
+  if (id === 'workers') renderWorkerGrid();
+  if (id === 'assignments') renderAssignments();
+  if (id === 'requests') renderRequests();
+  if (id === 'reports') renderReports();
+  if (id === 'calculator') calcStaffing();
+}
+
+function switchTab(tabEl, tabId) {
+  tabEl.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  renderAssignments(tabId);
+}
+
+// ============================================================
+// RENDER DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const completed = ROOMS.filter(r => r.status === 'complete').length;
+  const inProgress = ROOMS.filter(r => r.status === 'inprogress').length;
+  const total = ROOMS.length;
+  const pct = total ? Math.round(completed / total * 100) : 0;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statCompleted').textContent = completed;
+  document.getElementById('statCompPct').textContent = pct + '% done';
+  document.getElementById('statInProgress').textContent = inProgress;
+  document.getElementById('rptCompleted').textContent = completed;
+
+  // Breakdown
+  const coTotal = ROOMS.filter(r => r.type === 'CO').length;
+  const coComp = ROOMS.filter(r => r.type === 'CO' && r.status === 'complete').length;
+  const soTotal = ROOMS.filter(r => r.type === 'SO').length;
+  const soComp = ROOMS.filter(r => r.type === 'SO' && r.status === 'complete').length;
+  const urgCount = ROOMS.filter(r => r.priority === 'urgent').length;
+  const urgComp = ROOMS.filter(r => r.priority === 'urgent' && r.status === 'complete').length;
+
+  document.getElementById('brkCheckout').textContent = coComp + '/' + coTotal;
+  document.getElementById('brkStayover').textContent = soComp + '/' + soTotal;
+  document.getElementById('brkRequests').textContent = REQUESTS.filter(r => !r.done).length;
+  document.getElementById('brkUrgent').textContent = urgCount;
+  document.getElementById('progCheckout').style.width = (coTotal ? coComp/coTotal*100 : 0) + '%';
+  document.getElementById('progStayover').style.width = (soTotal ? soComp/soTotal*100 : 0) + '%';
+  document.getElementById('progUrgent').style.width = (urgCount ? urgComp/urgCount*100 : 0) + '%';
+
+  // Worker mini list
+  const workerListEl = document.getElementById('dashWorkerList');
+  workerListEl.innerHTML = WORKERS.map(w => {
+    const assignedRooms = ROOMS.filter(r => r.worker === w.id);
+    const comp = assignedRooms.filter(r => r.status === 'complete').length;
+    const total = assignedRooms.length;
+    const pct = total ? Math.round(comp / total * 100) : 0;
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+        <div class="worker-avatar" style="width:28px;height:28px;font-size:10px">${w.initials}</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600">${w.name}</div>
+          <div class="progress-bar" style="margin-top:4px">
+            <div class="progress-fill" style="width:${pct}%;background:var(--accent)"></div>
+          </div>
+        </div>
+        <div style="font-size:11px;font-family:var(--mono);color:var(--text2)">${comp}/${total}</div>
+      </div>`;
+  }).join('');
+
+  // Live room table (show first 20)
+  const tableBody = document.getElementById('liveRoomBody');
+  const displayRooms = ROOMS.slice(0, 25);
+  tableBody.innerHTML = displayRooms.map(room => {
+    const worker = room.worker ? WORKERS.find(w => w.id === room.worker) : null;
+    const statusBadge = getStatusBadge(room.status, room.priority);
+    return `
+      <tr>
+        <td><strong style="font-family:var(--mono)">${room.id}</strong></td>
+        <td>Floor ${room.floor}</td>
+        <td>${ROOM_TYPES[room.type]}</td>
+        <td>${worker ? `<span style="display:flex;align-items:center;gap:6px"><div class="worker-avatar" style="width:22px;height:22px;font-size:9px">${worker.initials}</div>${worker.name}</span>` : '<span style="color:var(--text3)">Unassigned</span>'}</td>
+        <td>${statusBadge}</td>
+        <td style="font-family:var(--mono)">${TIME_ESTIMATES[room.type]} min</td>
+        <td style="color:var(--text2);max-width:120px">${room.note || '—'}</td>
+        <td>
+          ${room.status !== 'complete' ? `<button class="btn" style="padding:4px 10px;font-size:11px" onclick="openRoomDetail(${room.id})">Details</button>` : `<span class="badge badge-green">Done</span>`}
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function getStatusBadge(status, priority) {
+  if (priority === 'urgent' && status !== 'complete') return '<span class="badge badge-red"><span class="badge-dot" style="background:var(--red)"></span>Urgent</span>';
+  const map = {
+    unassigned: '<span class="badge badge-gray">Unassigned</span>',
+    assigned: '<span class="badge badge-orange"><span class="badge-dot" style="background:var(--orange)"></span>Assigned</span>',
+    inprogress: '<span class="badge badge-blue"><span class="badge-dot" style="background:var(--blue)"></span>In Progress</span>',
+    complete: '<span class="badge badge-green"><span class="badge-dot" style="background:var(--green)"></span>Complete</span>',
+    service: '<span class="badge badge-purple"><span class="badge-dot" style="background:var(--purple)"></span>Svc Pending</span>',
+    delayed: '<span class="badge badge-red">Delayed</span>',
+  };
+  return map[status] || '<span class="badge badge-gray">Unknown</span>';
+}
+
+// ============================================================
+// FLOOR MAP
+// ============================================================
+function renderFloorMap() {
+  const floors = [1,2,3,4];
+  const mapEl = document.getElementById('floorMap');
+  mapEl.innerHTML = floors.map(fl => {
+    const flRooms = ROOMS.filter(r => r.floor === fl);
+    return `
+      <div class="floor-section">
+        <div class="floor-label">Floor ${fl}</div>
+        <div class="room-grid">
+          ${flRooms.map(room => {
+            let cls = 'room-unassigned';
+            if (room.priority === 'urgent' && room.status !== 'complete') cls = 'room-urgent';
+            else if (room.status === 'assigned') cls = 'room-assigned';
+            else if (room.status === 'inprogress') cls = 'room-inprogress';
+            else if (room.status === 'complete') cls = 'room-complete';
+            else if (room.status === 'service') cls = 'room-service';
+            return `
+              <div class="room-box tooltip-wrap ${cls}" onclick="openRoomDetail(${room.id})">
+                <span class="rn">${room.id}</span>
+                <span class="rt">${room.type}</span>
+                <div class="tooltip">Room ${room.id} · ${ROOM_TYPES[room.type]}</div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ============================================================
+// ASSIGNMENTS
+// ============================================================
+function renderAssignments(filter) {
+  let rooms = [...ROOMS];
+  if (filter === 'tab-checkout') rooms = rooms.filter(r => r.type === 'CO');
+  else if (filter === 'tab-stayover') rooms = rooms.filter(r => r.type === 'SO');
+  else if (filter === 'tab-urgent') rooms = rooms.filter(r => r.priority === 'urgent');
+
+  rooms.sort((a,b) => {
+    const p = { urgent:0, high:1, normal:2 };
+    return (p[a.priority]||2) - (p[b.priority]||2);
+  });
+
+  const body = document.getElementById('assignmentBody');
+  body.innerHTML = rooms.map(room => {
+    const worker = room.worker ? WORKERS.find(w => w.id === room.worker) : null;
+    const priBadge = room.priority === 'urgent' ? '<span class="badge badge-red">Urgent</span>' :
+                     room.priority === 'high' ? '<span class="badge badge-orange">High</span>' :
+                     '<span class="badge badge-gray">Normal</span>';
+    return `
+      <tr>
+        <td><strong style="font-family:var(--mono)">${room.id}</strong></td>
+        <td>Floor ${room.floor}</td>
+        <td>${ROOM_TYPES[room.type]}</td>
+        <td>${priBadge}</td>
+        <td>
+          <select style="border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:12px;background:var(--surface);color:var(--text);font-family:var(--font)" onchange="assignWorker(${room.id}, this.value)">
+            <option value="">— Unassigned —</option>
+            ${WORKERS.map(w => `<option value="${w.id}" ${room.worker === w.id ? 'selected' : ''}>${w.name}</option>`).join('')}
+          </select>
+        </td>
+        <td>${getStatusBadge(room.status, room.priority)}</td>
+        <td style="font-family:var(--mono)">${TIME_ESTIMATES[room.type]} min</td>
+        <td>
+          <button class="btn" style="padding:4px 10px;font-size:11px" onclick="openRoomDetail(${room.id})">Checklist</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function assignWorker(roomId, workerId) {
+  const room = ROOMS.find(r => r.id === roomId);
+  if (!room) return;
+  room.worker = workerId ? parseInt(workerId) : null;
+  if (workerId && room.status === 'unassigned') room.status = 'assigned';
+  if (!workerId) room.status = 'unassigned';
+  SyncManager.saveRoom(roomId);
+  notify('Room ' + roomId + ' assigned to ' + (workerId ? WORKERS.find(w=>w.id===parseInt(workerId)).name : 'nobody'));
+  renderDashboard();
+}
+
+function autoAssign() {
+  const unassigned = ROOMS.filter(r => r.status === 'unassigned');
+  // Sort: urgent first, checkout second, stayover last. Within floors together.
+  unassigned.sort((a,b) => {
+    const p = { urgent:0, high:1, normal:2 };
+    if ((p[a.priority]||2) !== (p[b.priority]||2)) return (p[a.priority]||2)-(p[b.priority]||2);
+    return a.floor - b.floor;
+  });
+
+  // Balance workload by points
+  const load = WORKERS.map(w => {
+    const pts = ROOMS.filter(r => r.worker === w.id).reduce((s, r) => s + (TIME_ESTIMATES[r.type]||20), 0);
+    return { ...w, pts };
+  });
+
+  unassigned.forEach(room => {
+    const lightest = load.reduce((min, w) => w.pts < min.pts ? w : min, load[0]);
+    room.worker = lightest.id;
+    room.status = 'assigned';
+    lightest.pts += TIME_ESTIMATES[room.type] || 20;
+  });
+
+  SyncManager.saveRoomsBulk(unassigned.map(r => ({ id: r.id, status: r.status, worker: r.worker })));
+  notify('Auto-assigned ' + unassigned.length + ' rooms across ' + WORKERS.length + ' workers');
+  renderDashboard();
+  if (document.getElementById('screen-roommap').classList.contains('active')) renderFloorMap();
+  if (document.getElementById('screen-assignments').classList.contains('active')) renderAssignments();
+}
+
+// ============================================================
+// WORKERS
+// ============================================================
+function renderWorkerGrid() {
+  const grid = document.getElementById('workerGrid');
+  grid.innerHTML = WORKERS.map(w => {
+    const myRooms = ROOMS.filter(r => r.worker === w.id);
+    const comp = myRooms.filter(r => r.status === 'complete').length;
+    const inprog = myRooms.filter(r => r.status === 'inprogress').length;
+    const pending = myRooms.filter(r => r.status === 'assigned' || r.status === 'unassigned').length;
+    const totalMins = myRooms.filter(r => r.status !== 'complete').reduce((s,r) => s + (TIME_ESTIMATES[r.type]||20), 0);
+    const finishHour = estimateFinish(totalMins);
+    const pct = myRooms.length ? Math.round(comp/myRooms.length*100) : 0;
+    return `
+      <div class="worker-card">
+        <div class="worker-header">
+          <div class="worker-avatar">${w.initials}</div>
+          <div>
+            <div class="worker-name">${w.name}</div>
+            <div class="worker-role">Housekeeper ${w.onBreak ? '· <span style="color:var(--yellow)">On Break</span>' : ''}</div>
+          </div>
+          <div style="margin-left:auto">${w.clockedIn ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Off</span>'}</div>
+        </div>
+        <div class="progress-bar" style="margin-bottom:12px">
+          <div class="progress-fill" style="width:${pct}%;background:var(--accent)"></div>
+        </div>
+        <div class="worker-stat"><span class="worker-stat-label">Assigned</span><span class="worker-stat-value">${myRooms.length} rooms</span></div>
+        <div class="worker-stat"><span class="worker-stat-label">Completed</span><span class="worker-stat-value" style="color:var(--green)">${comp}</span></div>
+        <div class="worker-stat"><span class="worker-stat-label">In Progress</span><span class="worker-stat-value" style="color:var(--blue)">${inprog}</span></div>
+        <div class="worker-stat"><span class="worker-stat-label">Remaining</span><span class="worker-stat-value">${pending}</span></div>
+        <div class="worker-stat"><span class="worker-stat-label">Est. Finish</span><span class="worker-stat-value">${finishHour}</span></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn" style="flex:1;font-size:11px;padding:5px 8px" onclick="toggleBreak(${w.id})">${w.onBreak ? 'End Break' : 'Start Break'}</button>
+          <button class="btn btn-primary" style="flex:1;font-size:11px;padding:5px 8px" onclick="markAllComplete(${w.id})">Mark All Done</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleBreak(wid) {
+  const w = WORKERS.find(x => x.id === wid);
+  w.onBreak = !w.onBreak;
+  SyncManager.saveWorker(wid);
+  notify(w.name + (w.onBreak ? ' started break' : ' ended break'));
+  renderWorkerGrid();
+}
+
+function markAllComplete(wid) {
+  const affected = ROOMS.filter(r => r.worker === wid);
+  affected.forEach(r => { r.status = 'complete'; r.checklist = r.checklist.map(() => true); });
+  WORKERS.find(w => w.id === wid).completed = affected.length;
+  SyncManager.saveRoomsBulk(affected.map(r => ({ id: r.id, status: 'complete', checklist: r.checklist })));
+  SyncManager.saveWorker(wid);
+  notify('All rooms marked complete for ' + WORKERS.find(w=>w.id===wid).name);
+  renderWorkerGrid();
+  renderDashboard();
+}
+
+function estimateFinish(minsRemaining) {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + minsRemaining);
+  return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+// ============================================================
+// ROOM DETAIL / CHECKLIST
+// ============================================================
+const CHECKLIST_LABELS = ['Bed made','Bathroom cleaned','Towels replaced','Trash removed','Vacuum done','Amenities restocked','Surfaces sanitized','Final inspection'];
+
+function openRoomDetail(roomId) {
+  const room = ROOMS.find(r => r.id === roomId);
+  if (!room) return;
+  currentRoomDetail = roomId;
+  const worker = room.worker ? WORKERS.find(w => w.id === room.worker) : null;
+
+  document.getElementById('roomDetailTitle').textContent = `Room ${room.id} · ${ROOM_TYPES[room.type]}`;
+  const nextStatus = { unassigned:'assigned', assigned:'inprogress', inprogress:'complete', complete:'complete' };
+  const actionLabel = { unassigned:'Mark Assigned', assigned:'Start Cleaning', inprogress:'Mark Complete', complete:'Completed' };
+  document.getElementById('roomDetailAction').textContent = actionLabel[room.status] || 'Update';
+  document.getElementById('roomDetailAction').onclick = () => advanceRoomStatus(roomId);
+
+  document.getElementById('roomDetailContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div>
+        <div class="form-label">Status</div>
+        ${getStatusBadge(room.status, room.priority)}
+      </div>
+      <div>
+        <div class="form-label">Priority</div>
+        ${room.priority === 'urgent' ? '<span class="badge badge-red">Urgent</span>' : room.priority === 'high' ? '<span class="badge badge-orange">High</span>' : '<span class="badge badge-gray">Normal</span>'}
+      </div>
+      <div>
+        <div class="form-label">Assigned To</div>
+        <span style="font-weight:600">${worker ? worker.name : 'Unassigned'}</span>
+      </div>
+      <div>
+        <div class="form-label">Est. Time</div>
+        <span style="font-family:var(--mono);font-weight:600">${TIME_ESTIMATES[room.type]} min</span>
+      </div>
+    </div>
+    ${room.note ? `<div style="background:var(--yellow-light);border:1px solid #F0B429;border-radius:var(--radius);padding:10px 12px;font-size:12px;margin-bottom:14px;color:var(--yellow)">📋 ${room.note}</div>` : ''}
+    <div class="form-label" style="margin-bottom:8px">Cleaning Checklist</div>
+    <ul class="checklist" id="roomChecklist">
+      ${CHECKLIST_LABELS.map((label, i) => `
+        <li class="check-item ${room.checklist[i] ? 'checked' : ''}" onclick="toggleCheck(${roomId},${i})">
+          <div class="check-box">${room.checklist[i] ? '✓' : ''}</div>
+          <span class="check-label">${label}</span>
+        </li>`).join('')}
+    </ul>
+  `;
+  openModal('roomDetailModal');
+}
+
+function toggleCheck(roomId, idx) {
+  const room = ROOMS.find(r => r.id === roomId);
+  room.checklist[idx] = !room.checklist[idx];
+  SyncManager.saveRoom(roomId);
+  openRoomDetail(roomId);
+}
+
+function advanceRoomStatus(roomId) {
+  const room = ROOMS.find(r => r.id === roomId);
+  const next = { unassigned:'assigned', assigned:'inprogress', inprogress:'complete', complete:'complete' };
+  room.status = next[room.status] || 'complete';
+  if (room.status === 'complete') {
+    room.checklist = room.checklist.map(() => true);
+    const worker = WORKERS.find(w => w.id === room.worker);
+    if (worker) { worker.completed++; SyncManager.saveWorker(worker.id); }
+  }
+  SyncManager.saveRoom(roomId);
+  notify('Room ' + roomId + ' → ' + room.status);
+  closeModal('roomDetailModal');
+  renderDashboard();
+  if (document.getElementById('screen-roommap').classList.contains('active')) renderFloorMap();
+}
+
+// ============================================================
+// REQUESTS
+// ============================================================
+function renderRequests() {
+  const listEl = document.getElementById('requestList');
+  const icons = { 'Extra Towels':'🛁', 'Extra Toiletries':'🧴', 'Quick Cleanup':'🧹', 'Linen Replacement':'🛏️', 'Trash Pickup':'🗑️', 'Other':'📋' };
+  const pBadge = { Normal:'badge-blue', High:'badge-orange', Urgent:'badge-red' };
+  listEl.innerHTML = REQUESTS.filter(r => !r.done).map(r => `
+    <div class="request-item">
+      <div class="request-icon">${icons[r.type] || '📋'}</div>
+      <div class="request-info">
+        <div class="request-title">Room ${r.room} · ${r.type}</div>
+        <div class="request-sub">${r.time} · <span class="badge ${pBadge[r.priority] || 'badge-gray'}">${r.priority}</span></div>
+      </div>
+      <button class="btn btn-primary" style="font-size:11px;padding:5px 10px" onclick="completeRequest(${r.id})">Done</button>
+    </div>`).join('') || '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">No pending requests</div>';
+  
+  // Update badge
+  const count = REQUESTS.filter(r => !r.done).length;
+  document.getElementById('requestBadge').textContent = count;
+  if (count === 0) document.getElementById('requestBadge').style.display = 'none';
+  else document.getElementById('requestBadge').style.display = '';
+}
+
+function completeRequest(id) {
+  const r = REQUESTS.find(x => x.id === id);
+  if (r) { r.done = true; SyncManager.saveRequest(r.id, true); notify('Request for Room ' + r.room + ' completed'); }
+  renderRequests();
+  renderDashboard();
+}
+
+function addRequest() {
+  const room = document.getElementById('reqRoom').value;
+  const type = document.getElementById('reqType').value;
+  const priority = document.getElementById('reqPriority').value;
+  const notes = document.getElementById('reqNotes').value;
+  if (!room) { notify('Please enter a room number'); return; }
+  
+  const now = new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+  const reqData = { room: parseInt(room), type, priority, time: now, worker: null, notes };
+  SyncManager.addRequest(reqData).then(saved => {
+    if (saved) REQUESTS.push(saved);
+    else REQUESTS.push({ id: Date.now(), ...reqData, done: false });
+    renderRequests();
+    renderDashboard();
+  });
+  notify('Request added for Room ' + room);
+  document.getElementById('reqRoom').value = '';
+  document.getElementById('reqNotes').value = '';
+}
+
+function submitModalRequest() {
+  const room = document.getElementById('modalRoom').value;
+  const type = document.getElementById('modalType').value;
+  const priority = document.getElementById('modalPriority').value;
+  if (!room) { notify('Please enter a room number'); return; }
+  const now = new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+  const reqData = { room: parseInt(room), type, priority, time: now, worker: null };
+  SyncManager.addRequest(reqData).then(saved => {
+    if (saved) REQUESTS.push(saved);
+    else REQUESTS.push({ id: Date.now(), ...reqData, done: false });
+    renderDashboard();
+    if (document.getElementById('screen-requests').classList.contains('active')) renderRequests();
+    const badge = document.getElementById('requestBadge');
+    badge.textContent = REQUESTS.filter(r => !r.done).length;
+    badge.style.display = '';
+  });
+  notify('Request added for Room ' + room);
+  document.getElementById('modalRoom').value = '';
+  closeModal('addRoomModal');
+}
+
+// ============================================================
+// STAFFING CALCULATOR
+// ============================================================
+function calcStaffing() {
+  const checkout = parseInt(document.getElementById('calcCheckout').value) || 0;
+  const stayover = parseInt(document.getElementById('calcStayover').value) || 0;
+  const requests = parseInt(document.getElementById('calcRequests').value) || 0;
+  const deep = parseInt(document.getElementById('calcDeep').value) || 0;
+  const shiftHours = parseFloat(document.getElementById('calcShift').value) || 8;
+  const breakMins = parseInt(document.getElementById('calcBreak').value) || 30;
+
+  const totalMins = checkout * 25 + stayover * 15 + requests * 10 + deep * 35;
+  const effectiveMins = shiftHours * 60 - breakMins;
+  const workersNeeded = Math.ceil(totalMins / effectiveMins);
+  
+  document.getElementById('resTotalMin').textContent = totalMins;
+  document.getElementById('resWorkers').textContent = workersNeeded;
+  document.getElementById('resEffective').textContent = Math.round(effectiveMins);
+  document.getElementById('resFinish').textContent = estimateFinish(totalMins / workersNeeded);
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+function renderReports() {
+  const completed = ROOMS.filter(r => r.status === 'complete').length;
+  document.getElementById('rptCompleted').textContent = completed;
+  document.getElementById('rptRequests').textContent = REQUESTS.filter(r => r.done).length;
+  document.getElementById('rptOnTime').textContent = completed > 0 ? Math.min(100, Math.round(completed / ROOMS.length * 130)) + '%' : '—';
+
+  const body = document.getElementById('performanceBody');
+  body.innerHTML = WORKERS.map(w => {
+    const myRooms = ROOMS.filter(r => r.worker === w.id);
+    const comp = myRooms.filter(r => r.status === 'complete').length;
+    const total = myRooms.length;
+    const pct = total ? Math.round(comp/total*100) : 0;
+    const score = pct >= 80 ? '<span class="badge badge-green">Excellent</span>' : 
+                  pct >= 50 ? '<span class="badge badge-blue">On Track</span>' :
+                  pct > 0 ? '<span class="badge badge-orange">In Progress</span>' :
+                  '<span class="badge badge-gray">Not Started</span>';
+    return `
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:8px">
+          <div class="worker-avatar" style="width:26px;height:26px;font-size:9px">${w.initials}</div>
+          ${w.name}
+        </div></td>
+        <td style="font-family:var(--mono)">${total}</td>
+        <td style="font-family:var(--mono);color:var(--green)">${comp}</td>
+        <td style="font-family:var(--mono)">~${TIME_ESTIMATES['CO']} min</td>
+        <td style="font-family:var(--mono)">${REQUESTS.filter(r => r.done).length}</td>
+        <td>${score}</td>
+      </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Click outside to close
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ============================================================
+// NOTIFICATION
+// ============================================================
+function notify(msg) {
+  const el = document.getElementById('notification');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._timeout);
+  el._timeout = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function updateClock() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const dateStr = now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  document.getElementById('topbarTime').textContent = timeStr;
+  document.getElementById('sidebarDate').textContent = dateStr;
+}
+
+// ============================================================
+// SYNC MANAGER (MongoDB API)
+// ============================================================
+const API = window.location.origin;
+
+const SyncManager = {
+  pollTimer: null,
+
+  // Seed database with generated data
+  async seedDB() {
+    try {
+      const workerData = WORKERS.map(w => ({
+        id: w.id, name: w.name, initials: w.initials,
+        completed: w.completed || 0, onBreak: w.onBreak || false,
+        clockedIn: w.clockedIn !== false
+      }));
+      await fetch(API + '/api/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rooms: ROOMS, requests: REQUESTS, workers: workerData })
+      });
+    } catch (e) { console.warn('SyncManager seedDB failed:', e); }
+  },
+
+  // Save a single room update
+  async saveRoom(roomId) {
+    const room = ROOMS.find(r => r.id === roomId);
+    if (!room) return;
+    try {
+      await fetch(API + '/api/rooms/' + roomId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: room.status, checklist: room.checklist, worker: room.worker })
+      });
+    } catch (e) { console.warn('saveRoom failed:', e); }
+  },
+
+  // Bulk update rooms (for auto-assign, mark all complete)
+  async saveRoomsBulk(roomUpdates) {
+    try {
+      await fetch(API + '/api/rooms', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ updates: roomUpdates })
+      });
+    } catch (e) { console.warn('saveRoomsBulk failed:', e); }
+  },
+
+  // Save a worker update
+  async saveWorker(workerId) {
+    const w = WORKERS.find(x => x.id === workerId);
+    if (!w) return;
+    try {
+      await fetch(API + '/api/workers/' + workerId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ onBreak: w.onBreak, completed: w.completed, clockedIn: w.clockedIn })
+      });
+    } catch (e) { console.warn('saveWorker failed:', e); }
+  },
+
+  // Save a request completion
+  async saveRequest(reqId, done) {
+    try {
+      await fetch(API + '/api/requests/' + reqId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ done })
+      });
+    } catch (e) { console.warn('saveRequest failed:', e); }
+  },
+
+  // Add a new request
+  async addRequest(data) {
+    try {
+      const res = await fetch(API + '/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await res.json();
+    } catch (e) { console.warn('addRequest failed:', e); return null; }
+  },
+
+  // Poll for updates from worker app
+  async poll() {
+    try {
+      const [roomsRes, reqsRes, workersRes] = await Promise.all([
+        fetch(API + '/api/rooms'),
+        fetch(API + '/api/requests'),
+        fetch(API + '/api/workers')
+      ]);
+      const newRooms = await roomsRes.json();
+      const newReqs = await reqsRes.json();
+      const newWorkers = await workersRes.json();
+
+      // Check if data changed
+      const changed = JSON.stringify(newRooms) !== JSON.stringify(ROOMS) ||
+                       JSON.stringify(newReqs) !== JSON.stringify(REQUESTS);
+
+      ROOMS = newRooms;
+      REQUESTS = newReqs;
+      newWorkers.forEach(sw => {
+        const w = WORKERS.find(x => x.id === sw.id);
+        if (w) { w.completed = sw.completed; w.onBreak = sw.onBreak; w.clockedIn = sw.clockedIn; }
+      });
+
+      if (changed) {
+        renderDashboard();
+        if (document.getElementById('screen-roommap').classList.contains('active')) renderFloorMap();
+        if (document.getElementById('screen-assignments').classList.contains('active')) renderAssignments();
+        if (document.getElementById('screen-workers').classList.contains('active')) renderWorkerGrid();
+        if (document.getElementById('screen-requests').classList.contains('active')) renderRequests();
+        if (document.getElementById('screen-reports').classList.contains('active')) renderReports();
+      }
+    } catch (e) { /* server might be down, ignore */ }
+  },
+
+  startPolling() {
+    this.pollTimer = setInterval(() => this.poll(), 5000);
+  },
+
+  // Legacy save() calls route to appropriate API methods
+  save() {
+    // This is called by existing code — we handle specific saves in each function instead
+    // Keep as no-op for backward compat; specific saves are done inline
+  }
+};
+
+// ============================================================
+// INIT
+// ============================================================
+generateRooms();
+renderDashboard();
+updateClock();
+setInterval(updateClock, 1000);
+calcStaffing();
+
+// Seed DB and start polling
+(async () => {
+  await SyncManager.seedDB();
+  SyncManager.startPolling();
+
+  // After a short delay, auto-assign
+  setTimeout(async () => {
+    if (ROOMS.length > 0) {
+      autoAssign();
+    }
+  }, 500);
+})();
+</script>
+</body>
+</html>
